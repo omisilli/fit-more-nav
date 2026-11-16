@@ -16,7 +16,7 @@ leaves it. No dependencies.
 npm install github:omisilli/dropdown#v1.4.1
 npm install github:omisilli/target-functions#v3.2.0   # for tabs
 npm install github:omisilli/anchor#v3.2.1             # for long tabs
-npm install github:omisilli/fit-more-nav#v1.0.0
+npm install github:omisilli/fit-more-nav#v1.1.0
 ```
 
 ```ts
@@ -40,12 +40,12 @@ Each returns its own cleanup.
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/index.css" />
 <script type="module">
     import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
     import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
     import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
-    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
+    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/dist/index.js";
 
     initDropdown();
     initTargetFunctions();
@@ -147,7 +147,19 @@ While the row is too narrow for it in its own place, it stands where
 When the row is wide enough again, every item is back in its own place. It
 is CSS, so a media query sets it per screen size. The place is CSS `order`:
 the item is not moved in the page, and the Tab key still goes through the
-items as they are written.
+items as they are written — the arrow keys go as the row is seen.
+
+### Keys
+
+With focus on an item, or on "More":
+
+| Key     | Goes to                                                                 |
+| ------- | ----------------------------------------------------------------------- |
+| → · ←   | The next stop to the right or left, as the row is seen — the current item where it stands, "More" last; from the end round to the start |
+| Home    | The first in the row                                                    |
+| End     | The last — "More", when it shows                                        |
+
+Inside "More"'s list the keys are dropdown's, not the row's.
 
 ### Nothing is moved or made
 
@@ -170,6 +182,11 @@ with media queries:
 Before the script has looked, the row is cut at its end
 (`overflow: clip`) rather than spilling out; "More" shows only when
 something is in it.
+
+Both hiding rules — an item that does not fit, "More" with nothing in it —
+are `!important`. A theme that imports `index.css` into a lower cascade
+layer than its utilities (Tailwind's `grid` or `flex` on an item or on
+"More") does not bring them back.
 
 ## Attributes
 

@@ -29,13 +29,17 @@
     white-space: nowrap;
 }
 
+/* Hidden whatever the site's own classes say: a theme that imports this
+   file into a lower cascade layer than its utilities (Tailwind's grid or
+   flex on an item, on "More") must not bring them back. !important turns
+   the layers round in its favour. */
 [data-pg-fit-more-nav-hidden] {
     display: none !important;
 }
 
 /* "More" only when something is in it — and not before the first look. */
 [data-pg-fit-more-nav]:not([data-pg-fit-more-nav-overflow="true"]) [data-pg-fit-more-nav-more] {
-    display: none;
+    display: none !important;
 }
 
 /* Before the script has looked, items that will move to "More" are cut at

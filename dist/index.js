@@ -38,6 +38,11 @@
  * --pg-fit-more-nav: none — by screen size, with a media query — leaves
  * every item in the row and "More" away.
  *
+ * Keys: with focus on an item or on "More", ← and → go to the one beside it
+ * as the row is seen — the current item where it stands, "More" last — and
+ * round from the end to the start; Home and End to the first and the last.
+ * Tab goes through them as they are written.
+ *
  * No dependencies.
  */
 const ROOT = "data-pg-fit-more-nav";
@@ -172,6 +177,25 @@ function decide(root) {
     if (!root.hasAttribute(READY))
         root.setAttribute(READY, "");
 }
+/* What focus stops on in an item, or in "More" outside its list: the
+   element itself when it is a link or a button, else the first inside. */
+const FOCUSABLE = "a[href], button";
+function focusableIn(el, skip) {
+    if (el.matches(FOCUSABLE))
+        return el;
+    return [...el.querySelectorAll(FOCUSABLE)].find((f) => !skip || !f.closest(skip)) ?? null;
+}
+/* The row's stops as they are seen, left to right: the items in it — the
+   current one where --pg-fit-more-nav-picked put it — then "More", when it
+   shows. */
+function stopsOf(root) {
+    const { items, more } = partsOf(root);
+    const stops = items.filter((item) => !item.hasAttribute(HIDDEN)).map((item) => focusableIn(item));
+    if (more && root.getAttribute(OVERFLOW) === "true")
+        stops.push(focusableIn(more, `[${LIST}]`));
+    const left = (el) => el.getBoundingClientRect().left;
+    return stops.filter((el) => !!el).sort((a, b) => left(a) - left(b));
+}
 /* Only the newest call answers — a late cleanup from an older one (React
    remounting) cannot switch it off. Same rule as the other packages. */
 let live = null;
@@ -235,11 +259,34 @@ export function initFitMoreNav() {
     addEventListener("load", schedule);
     // The fonts arrive: every label has its real width now.
     document.fonts?.ready.then(schedule);
+    // ← → Home End on an item or on "More": the next stop as the row is
+    // seen. Not inside "More"'s list — that is the dropdown's.
+    const KEYS = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    const onKeydown = (event) => {
+        if (live !== self || !KEYS.includes(event.key))
+            return;
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+            return;
+        const target = event.target instanceof HTMLElement ? event.target : null;
+        const root = target?.closest(`[${ROOT}]`);
+        if (!target || !root || target.closest(`[${LIST}]`))
+            return;
+        const stops = stopsOf(root);
+        const at = stops.indexOf(target);
+        if (at < 0)
+            return;
+        event.preventDefault();
+        const last = stops.length - 1;
+        const next = event.key === "Home" ? 0 : event.key === "End" ? last : event.key === "ArrowRight" ? (at === last ? 0 : at + 1) : at === 0 ? last : at - 1;
+        stops[next].focus();
+    };
+    document.addEventListener("keydown", onKeydown);
     document.fonts?.addEventListener?.("loadingdone", schedule);
     // Now, not a frame later: the row is right from the first paint after.
     update();
     return () => {
         mo.disconnect();
+        document.removeEventListener("keydown", onKeydown);
         sizes?.disconnect();
         removeEventListener("resize", schedule);
         removeEventListener("load", schedule);

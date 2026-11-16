@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/index.css" />
         <style>
             :root {
                 --bg: #f3f3f1;
@@ -474,7 +474,8 @@
                 <p>
                     A row of tabs that always fits. Narrow the window below — drag the handle beside its tabs, or use the slider above it: the tabs that no longer fit move to
                     <b>More</b>, the lowest priority first, and come back as it grows. The open tab never leaves —
-                    pick one from More and it comes into the row while another goes. "More" is a
+                    pick one from More and it comes into the row while another goes. With focus on a tab, ← and → walk the row
+                    as it is seen, Home and End go to its ends. "More" is a
                     <code>dropdown</code>, the tabs are <code>targetFunctions</code>; fit-more-nav only measures
                     and decides. <code>anchor</code> sits beside them: read far down the long Overview tab, press
                     another tab — in the row or in More — and the page comes back to the new tab's start.
@@ -619,7 +620,7 @@
         <script type="module">
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
+            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/dist/index.js";
             import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
 
             const query = new URLSearchParams(location.search);
