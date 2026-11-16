@@ -1,9 +1,8 @@
 <!doctype html>
-<!-- fit-more-nav with the two packages it completes: dropdown draws "More",
-     targetFunctions opens the tabs. Those two load from jsDelivr, pinned;
-     fit-more-nav loads from this repo's own files (../../) until its first
-     release, so open this page through a local server, not by
-     double-clicking. The switches are links: ?picked=start, ?picked=3,
+<!-- Open by double-clicking: everything loads from jsDelivr, pinned to a
+     release, so the page and the code always match. fit-more-nav with the
+     two packages it completes: dropdown draws "More", targetFunctions opens
+     the tabs. The switches are links: ?picked=start, ?picked=3,
      ?priority=none — each keeps the others. -->
 <html lang="en">
     <head>
@@ -12,7 +11,7 @@
         <title>fit-more-nav — example</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
-        <link rel="stylesheet" href="../../index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
         <style>
             :root {
                 --bg: #f3f3f1;
@@ -392,7 +391,7 @@
         <script type="module">
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-            import { initFitMoreNav } from "../../dist/index.js";
+            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
 
             const query = new URLSearchParams(location.search);
             const row = document.getElementById("row");

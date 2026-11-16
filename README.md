@@ -31,6 +31,26 @@ initFitMoreNav();
 
 Each returns its own cleanup.
 
+### Without a build step
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
+<script type="module">
+    import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/dist/index.js";
+    import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
+    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
+
+    initDropdown();
+    initTargetFunctions();
+    initFitMoreNav();
+</script>
+```
+
+Pin the versions on a live site. A pinned URL never changes; `@1` follows
+the newest 1.x release.
+
 ## Which do I need?
 
 | The row is                   | You need                                              |
@@ -40,7 +60,8 @@ Each returns its own cleanup.
 | A row that should scroll sideways instead | Not this: the anchor package's `data-pg-anchor-strip` |
 
 A row either moves what does not fit to "More" or scrolls sideways — one
-or the other, never both.
+or the other, never both. The anchor package's other half does go with it:
+see Alongside.
 
 ## The markup
 
@@ -150,6 +171,20 @@ Written by this file — do not write them yourself:
 `data-pg-fit-more-nav-hidden` on an item, `data-pg-fit-more-nav-copy` on a
 copy, `data-pg-fit-more-nav-overflow` and `data-pg-fit-more-nav-ready` on
 the row.
+
+## Alongside
+
+- **dropdown** draws "More" — its look, opening, closing and keys are
+  dropdown's. Its `data-pg-dropdown-x="end"` keeps the list inside the
+  screen when "More" sits at the row's end.
+- **targetFunctions** opens the tab picked — from the row or from "More",
+  where the copy carries the same commands — and writes the
+  `aria-expanded` this file follows.
+- **anchor:** `data-pg-anchor` on the tabs goes with it. A tab pressed far
+  down a long panel brings the page back to the panel's start
+  (`--pg-anchor-when: passed`) — from the row or from "More", where the
+  copy carries it too. Its `data-pg-anchor-strip` does not: a strip
+  scrolls the row sideways, this row never scrolls.
 
 ## React (Next)
 
