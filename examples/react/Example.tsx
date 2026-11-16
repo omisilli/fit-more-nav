@@ -3,16 +3,20 @@
 import { useEffect } from "react";
 import { initDropdown } from "@plusguard/dropdown";
 import { initTargetFunctions } from "@plusguard/target-functions";
+import { initAnchor } from "@plusguard/anchor";
 import { initFitMoreNav } from "@plusguard/fit-more-nav";
 import "@plusguard/dropdown/index.css";
 import "@plusguard/target-functions/index.css";
+import "@plusguard/anchor/index.css";
 import "@plusguard/fit-more-nav/index.css";
 
 /* Mount once, high in the tree: each listens on the page, for rows and
-   tabs rendered later too. None of the three knows the others. */
+   tabs rendered later too. None of the four knows the others. anchor is
+   for long tabs: one pressed far down brings the page back to its start. */
 export function Packages() {
     useEffect(() => initDropdown(), []);
     useEffect(() => initTargetFunctions(), []);
+    useEffect(() => initAnchor(), []);
     useEffect(() => initFitMoreNav(), []);
     return null;
 }
@@ -47,6 +51,7 @@ export function Tabs() {
                         data-pg-fit-more-nav-item
                         data-pg-fit-more-nav-priority={t.priority}
                         data-pg-target-functions={`close-tab-except-${t.id} open-${t.id}`}
+                        data-pg-anchor={`#t-${t.id}`}
                         aria-controls={`t-${t.id}`}
                     >
                         {t.title}

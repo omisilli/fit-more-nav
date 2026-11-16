@@ -15,17 +15,20 @@ leaves it. No dependencies.
 ```sh
 npm install github:omisilli/dropdown#v1.4.0
 npm install github:omisilli/target-functions#v3.2.0   # for tabs
+npm install github:omisilli/anchor#v3.2.1             # for long tabs
 npm install github:omisilli/fit-more-nav#v1.0.0
 ```
 
 ```ts
 import { initDropdown } from "@plusguard/dropdown";
 import { initTargetFunctions } from "@plusguard/target-functions";
+import { initAnchor } from "@plusguard/anchor";
 import { initFitMoreNav } from "@plusguard/fit-more-nav";
 import "@plusguard/fit-more-nav/index.css";
 
 initDropdown();
 initTargetFunctions(); // for tabs
+initAnchor();          // for long tabs
 initFitMoreNav();
 ```
 
@@ -36,14 +39,17 @@ Each returns its own cleanup.
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
 <script type="module">
     import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/dist/index.js";
     import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
+    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
     import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
 
     initDropdown();
     initTargetFunctions();
+    initAnchor();
     initFitMoreNav();
 </script>
 ```
@@ -53,15 +59,24 @@ the newest 1.x release.
 
 ## Which do I need?
 
-| The row is                   | You need                                              |
-| ---------------------------- | ----------------------------------------------------- |
-| A menu of links to pages     | `dropdown` + `fit-more-nav`                           |
-| Tabs                         | `dropdown` + `target-functions` + `fit-more-nav`      |
+| The row is                   | You need                                                     |
+| ---------------------------- | ------------------------------------------------------------ |
+| A menu of links to pages     | `dropdown` + `fit-more-nav`                                  |
+| Tabs                         | `dropdown` + `target-functions` + `fit-more-nav`             |
+| Tabs with long panels        | the same + `anchor` (`data-pg-anchor` on the tabs)           |
 | A row that should scroll sideways instead | Not this: the anchor package's `data-pg-anchor-strip` |
 
-A row either moves what does not fit to "More" or scrolls sideways — one
-or the other, never both. The anchor package's other half does go with it:
-see Alongside.
+## The packages it is used with — and why
+
+| Package                          | Why it is here                                                                                                   | When       |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------- |
+| `dropdown`                       | It **is** "More": its look, opening and closing, Escape, a press outside; it closes once a link or tab is picked. `data-pg-dropdown-x="end"` keeps the list on the screen at the row's end. | Always     |
+| `target-functions`               | Opens the tab picked — in the row, or its copy in "More", which carries the same commands. Writes the `aria-expanded` that marks the open tab, the one that never leaves the row; opens a tab named by the address's `#id`. | Tabs       |
+| `anchor` — `data-pg-anchor`      | Far down a long tab, a tab pressed brings the page back to its start (`--pg-anchor-when: passed`) — in the row or in "More", where the copy carries it too. | Long tabs  |
+| `anchor` — `data-pg-anchor-strip`| Scrolls a row sideways instead of moving items to "More". The other answer to the same row: one or the other, never both. | Not with this row |
+
+fit-more-nav imports none of them, and none of them knows it: each is
+installed and started on its own, and they meet only in the markup.
 
 ## The markup
 
@@ -172,27 +187,13 @@ Written by this file — do not write them yourself:
 copy, `data-pg-fit-more-nav-overflow` and `data-pg-fit-more-nav-ready` on
 the row.
 
-## Alongside
-
-- **dropdown** draws "More" — its look, opening, closing and keys are
-  dropdown's. Its `data-pg-dropdown-x="end"` keeps the list inside the
-  screen when "More" sits at the row's end.
-- **targetFunctions** opens the tab picked — from the row or from "More",
-  where the copy carries the same commands — and writes the
-  `aria-expanded` this file follows.
-- **anchor:** `data-pg-anchor` on the tabs goes with it. A tab pressed far
-  down a long panel brings the page back to the panel's start
-  (`--pg-anchor-when: passed`) — from the row or from "More", where the
-  copy carries it too. Its `data-pg-anchor-strip` does not: a strip
-  scrolls the row sideways, this row never scrolls.
-
 ## React (Next)
 
 ```tsx
 useEffect(() => initFitMoreNav(), []);
 ```
 
-Mount it once, high in the tree, beside dropdown's and targetFunctions';
+Mount it once, high in the tree, beside dropdown's, targetFunctions' and anchor's;
 rows rendered later are found too. Render `data-pg-fit-more-nav-list`
 empty and never give it children: this file fills it. If `initFitMoreNav`
 is called again before the first cleanup runs (React remounting in
