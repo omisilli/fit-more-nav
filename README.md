@@ -15,7 +15,7 @@ leaves it. No dependencies.
 ```sh
 npm install github:omisilli/dropdown#v1.4.1
 npm install github:omisilli/target-functions#v3.2.0   # for tabs
-npm install github:omisilli/anchor#v3.2.1             # for long tabs
+npm install github:omisilli/anchor#v3.3.0             # for long tabs
 npm install github:omisilli/fit-more-nav#v1.1.0
 ```
 
@@ -39,12 +39,12 @@ Each returns its own cleanup.
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/index.css" />
 <script type="module">
     import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
     import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
+    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
     import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/dist/index.js";
 
     initDropdown();
@@ -73,6 +73,7 @@ the newest 1.x release.
 | `dropdown`                       | It **is** "More": its look, opening and closing, Escape, a press outside; it closes once a link or tab is picked. `data-pg-dropdown-x="end"` keeps the list on the screen at the row's end. | Always     |
 | `target-functions`               | Opens the tab picked — in the row, or its copy in "More", which carries the same commands. Writes the `aria-expanded` that marks the open tab, the one that never leaves the row; opens a tab named by the address's `#id`. | Tabs       |
 | `anchor` — `data-pg-anchor`      | Far down a long tab, a tab pressed brings the page back to its start (`--pg-anchor-when: passed`) — in the row or in "More", where the copy carries it too. | Long tabs  |
+| `anchor` — `data-pg-anchor-hash` | Keeps the address in step with the open tab: `"true"` writes its `#id` with a Back step each time, `"replace"` writes it with none. Left out, a page opened on `#t-news` keeps `#t-news` when another tab is pressed, and a reload brings News back. On the row, so the copies in "More" write it too. | Tabs with a shared link |
 | `anchor` — `data-pg-anchor-strip`| Scrolls a row sideways instead of moving items to "More". The other answer to the same row: one or the other, never both. | Not with this row |
 
 fit-more-nav imports none of them, and none of them knows it: each is
@@ -222,7 +223,8 @@ development), only the newest call answers. See
 [`examples/static/index.html`](examples/static/index.html) — tabs in an app
 bar, a window you narrow with a slider, and switches for where the picked
 tab stands (`?picked=start`, `?picked=3`), for leaving by priority or from
-the end (`?priority=none`), and a link that opens a tab by `#id`. anchor
+the end (`?priority=none`), a link that opens a tab by `#id`, and whether a tab pressed writes its `#id` to
+the address (`?hash=true`, `?hash=replace`). anchor
 sits beside it: far down the long first tab, a tab pressed in the row or
 in "More" brings the page back to its start (`?when=always`,
 `?when=never` to compare).

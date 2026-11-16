@@ -4,7 +4,8 @@
      two packages it completes: dropdown draws "More", targetFunctions opens
      the tabs — and anchor beside them, bringing a long tab back to its start.
      The switches are links: ?picked=start, ?picked=3, ?priority=none,
-     ?when=always, ?when=never — each keeps the others. -->
+     ?when=always, ?when=never, ?hash=true, ?hash=replace — each keeps the
+     others. -->
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -12,7 +13,7 @@
         <title>fit-more-nav — example</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/index.css" />
         <style>
             :root {
@@ -501,6 +502,12 @@
                     <a id="when-never" href="?when=never">left where you were</a>
                 </div>
                 <div class="row">
+                    <span>The address bar</span>
+                    <a id="hash-false" href="?">left as it is</a>
+                    <a id="hash-true" href="?hash=true">writes #t-… · Back by tab</a>
+                    <a id="hash-replace" href="?hash=replace">writes #t-… · Back leaves</a>
+                </div>
+                <div class="row">
                     <span>A link to a tab</span>
                     <a id="hash" href="#t-team" target="_blank">Open #t-team in a new tab</a>
                 </div>
@@ -621,7 +628,7 @@
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
             import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/dist/index.js";
-            import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
+            import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
 
             const query = new URLSearchParams(location.search);
             const row = document.getElementById("row");
@@ -637,6 +644,13 @@
             // its copies in More have it too.
             const when = query.get("when");
             row.style.setProperty("--pg-anchor-when", when === "always" || when === "never" ? when : "passed");
+
+            // ?hash: whether a pressed tab writes its #id to the address — on
+            // the row, so its copies in More do too. Left as it is, a page
+            // opened on #t-team keeps #t-team when another tab is pressed,
+            // and a reload brings Team back.
+            const hash = query.get("hash");
+            if (hash === "true" || hash === "replace") row.setAttribute("data-pg-anchor-hash", hash);
 
             // The four packages, side by side — none knows the others.
             initTargetFunctions();
@@ -787,6 +801,10 @@
             document.getElementById("when-always").href = link("when", "always");
             document.getElementById("when-never").href = link("when", "never");
             document.getElementById(`when-${when === "always" || when === "never" ? when : "passed"}`).setAttribute("aria-current", "true");
+            document.getElementById("hash-false").href = link("hash", null);
+            document.getElementById("hash-true").href = link("hash", "true");
+            document.getElementById("hash-replace").href = link("hash", "replace");
+            document.getElementById(`hash-${hash === "true" || hash === "replace" ? hash : "false"}`).setAttribute("aria-current", "true");
             document.getElementById("hash").href = `${link("x", null)}#t-team`;
         </script>
     </body>
