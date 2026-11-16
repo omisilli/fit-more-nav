@@ -9,8 +9,11 @@ leaves it. No dependencies.
 > dropdown: written by your site, opened and closed by
 > [`@plusguard/dropdown`](https://github.com/omisilli/dropdown). For tabs,
 > [`@plusguard/target-functions`](https://github.com/omisilli/target-functions)
-> opens the one picked. fit-more-nav only measures the row and decides
-> what stays; it imports neither — each package is installed on its own.
+> opens the one picked, and
+> [`@plusguard/anchor`](https://github.com/omisilli/anchor) brings a long tab
+> back to its start and keeps the address in step with the open tab.
+> fit-more-nav only measures the row and decides what stays; it imports none
+> of them — each package is installed on its own.
 
 ```sh
 npm install github:omisilli/dropdown#v1.4.1

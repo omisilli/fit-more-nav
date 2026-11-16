@@ -1,7 +1,7 @@
 {
     "name": "@plusguard/fit-more-nav",
     "version": "1.1.0",
-    "description": "A row that always fits: menu items or tabs that don't fit move to a \"More\" dropdown, by priority, and come back as the row grows. The current one never hides. Completes @plusguard/dropdown (and target-functions for tabs). No dependencies.",
+    "description": "A row that always fits: menu items or tabs that don't fit move to a \"More\" dropdown, by priority, and come back as the row grows. The current one never hides. Completes @plusguard/dropdown; with target-functions for tabs and anchor for long tabs and the address bar. No dependencies.",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
