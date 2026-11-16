@@ -25,7 +25,10 @@
                    day, near white by night. */
                 --accent: var(--fg);
                 --accent-soft: color-mix(in srgb, var(--fg) 8%, transparent);
-                --count: #e5484d;
+                /* YouTube's red: where the window is now, the section labels,
+                   the count in More. */
+                --red: #ff0000;
+                --count: var(--red);
                 color-scheme: light dark;
             }
             @media (prefers-color-scheme: dark) {
@@ -340,8 +343,7 @@
                     var(--rail) 0
                 );
             }
-            /* A stop: a faint ring, the thumb's own size and shape — on the
-               fill, a faint ring of the fill's colour. */
+            /* A stop: a faint ring, the thumb's own size and shape. */
             .dots i {
                 position: absolute;
                 top: 50%;
@@ -353,8 +355,10 @@
                 border-radius: 50%;
                 background: var(--surface);
             }
+            /* Reached: the fill's own colour, a node on the fill. */
             .dots i[data-passed] {
-                border-color: color-mix(in srgb, var(--accent) 45%, var(--surface));
+                border-color: var(--accent);
+                background: var(--accent);
             }
             .dots i[hidden] {
                 display: none;
@@ -381,18 +385,18 @@
                 appearance: none;
                 width: 22px;
                 height: 22px;
-                border: 5px solid var(--accent);
+                border: 5px solid var(--red);
                 border-radius: 50%;
-                background: var(--surface);
+                background: var(--red);
                 box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
             }
             .slider input::-moz-range-thumb {
                 box-sizing: border-box;
                 width: 22px;
                 height: 22px;
-                border: 5px solid var(--accent);
+                border: 5px solid var(--red);
                 border-radius: 50%;
-                background: var(--surface);
+                background: var(--red);
                 box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
             }
             .slider input:focus-visible {
