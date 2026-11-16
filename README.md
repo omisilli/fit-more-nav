@@ -18,7 +18,7 @@ leaves it. No dependencies.
 ```sh
 npm install github:omisilli/dropdown#v1.4.1
 npm install github:omisilli/target-functions#v3.2.0   # for tabs
-npm install github:omisilli/anchor#v3.3.0             # for long tabs
+npm install github:omisilli/anchor#v3.3.1             # for long tabs
 npm install github:omisilli/fit-more-nav#v1.4.0
 ```
 
@@ -42,12 +42,12 @@ Each returns its own cleanup.
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/index.css" />
 <script type="module">
     import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
     import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
+    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.1/dist/index.js";
     import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/dist/index.js";
 
     initDropdown();
