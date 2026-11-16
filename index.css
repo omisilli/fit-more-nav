@@ -9,6 +9,10 @@
  *   --pg-fit-more-nav-picked   end (default) · start · 3 — where the current
  *                              item stands while the row is too narrow for
  *                              it in its own place
+ *   --pg-fit-more-nav-duration 200ms (default) — how long items slide and
+ *                              fade when the row changes; 0s is at once
+ *   --pg-fit-more-nav-easing   any CSS easing (default
+ *                              cubic-bezier(0.2, 0, 0, 1))
  */
 
 /* One line, never wrapped. Its width comes from its place, not from its

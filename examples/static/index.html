@@ -4,7 +4,7 @@
      two packages it completes: dropdown draws "More", targetFunctions opens
      the tabs — and anchor beside them, bringing a long tab back to its start.
      The switches are links: ?picked=start, ?picked=3, ?priority=none,
-     ?when=always, ?when=never, ?hash=true, ?hash=replace — each keeps the
+     ?motion=slow, ?motion=none, ?when=always, ?when=never, ?hash=true, ?hash=replace — each keeps the
      others. -->
 <html lang="en">
     <head>
@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.2.0/index.css" />
         <style>
             :root {
                 --bg: #f3f3f1;
@@ -496,6 +496,12 @@
                     <a id="priority-off" href="?priority=none">from the end</a>
                 </div>
                 <div class="row">
+                    <span>The slide</span>
+                    <a id="motion-on" href="?">200ms</a>
+                    <a id="motion-slow" href="?motion=slow">600ms, to watch it</a>
+                    <a id="motion-none" href="?motion=none">none · at once</a>
+                </div>
+                <div class="row">
                     <span>A tab pressed far down</span>
                     <a id="when-passed" href="?">back to its start</a>
                     <a id="when-always" href="?when=always">always to its start</a>
@@ -627,7 +633,7 @@
         <script type="module">
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.1.0/dist/index.js";
+            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.2.0/dist/index.js";
             import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
 
             const query = new URLSearchParams(location.search);
@@ -639,6 +645,12 @@
             if (query.get("priority") === "none") {
                 row.querySelectorAll("[data-pg-fit-more-nav-priority]").forEach((el) => el.removeAttribute("data-pg-fit-more-nav-priority"));
             }
+
+            // ?motion: how long items slide and fade when the row changes —
+            // 200ms when left out, 0s at once.
+            const motion = query.get("motion");
+            if (motion === "slow") row.style.setProperty("--pg-fit-more-nav-duration", "600ms");
+            if (motion === "none") row.style.setProperty("--pg-fit-more-nav-duration", "0s");
 
             // ?when: when a pressed tab brings the page back — on the row, so
             // its copies in More have it too.
@@ -797,6 +809,10 @@
             document.getElementById("priority-on").href = link("priority", null);
             document.getElementById("priority-off").href = link("priority", "none");
             document.getElementById(query.get("priority") === "none" ? "priority-off" : "priority-on").setAttribute("aria-current", "true");
+            document.getElementById("motion-on").href = link("motion", null);
+            document.getElementById("motion-slow").href = link("motion", "slow");
+            document.getElementById("motion-none").href = link("motion", "none");
+            document.getElementById(`motion-${motion === "slow" || motion === "none" ? motion : "on"}`).setAttribute("aria-current", "true");
             document.getElementById("when-passed").href = link("when", null);
             document.getElementById("when-always").href = link("when", "always");
             document.getElementById("when-never").href = link("when", "never");

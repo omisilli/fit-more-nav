@@ -38,6 +38,13 @@
  * --pg-fit-more-nav: none — by screen size, with a media query — leaves
  * every item in the row and "More" away.
  *
+ * Motion: when items leave or come back, those that stay slide to their
+ * new places and those that come in fade in — "More" too. Not on load, not
+ * while the fonts arrive, not while a row only moves with its page:
+ * only when what the row holds, or its order, changes. --pg-fit-more-nav-
+ * duration (200ms; 0s is at once) and --pg-fit-more-nav-easing (any CSS
+ * easing). With reduced motion asked for, it is at once.
+ *
  * Keys: with focus on an item or on "More", ← and → go to the one beside it
  * as the row is seen — the current item where it stands, "More" last — and
  * round from the end to the start; Home and End to the first and the last.
@@ -62,6 +69,12 @@ const MARKED = '[aria-current]:not([aria-current="false"]), [aria-selected="true
 /* What "More" holds now, per row: copies are made again only when it
    changes. */
 const copied = new WeakMap();
+/* What the row showed last, and in which order, per row: motion only when
+   it changes. */
+const shown = new WeakMap();
+const MOTION = "pg-fit-more-nav";
+const DEFAULT_DURATION = 200;
+const DEFAULT_EASING = "cubic-bezier(0.2, 0, 0, 1)";
 const px = (value) => parseFloat(value) || 0;
 /* The row's own items and its "More" — not those of a row inside it. */
 function partsOf(root) {
@@ -115,12 +128,66 @@ function copyOf(item) {
     copy.setAttribute(COPY, "");
     return copy;
 }
+/* --pg-fit-more-nav-duration in ms — seconds or ms written; 0 with reduced
+   motion asked for, or before the page has settled: on load and while the
+   fonts arrive the row takes its shape at once. */
+function durationOf(root, css) {
+    if (typeof root.animate !== "function")
+        return 0;
+    if (!root.hasAttribute(READY) || document.readyState !== "complete")
+        return 0;
+    if (document.fonts && document.fonts.status !== "loaded")
+        return 0;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches)
+        return 0;
+    const raw = css.getPropertyValue("--pg-fit-more-nav-duration").trim();
+    const n = Number.parseFloat(raw);
+    if (!Number.isFinite(n))
+        return DEFAULT_DURATION;
+    return Math.max(0, raw.endsWith("ms") ? n : n * 1000);
+}
+function placesOf(root, parts) {
+    const origin = root.getBoundingClientRect().left;
+    return new Map(parts.map((el) => {
+        const box = el.getBoundingClientRect();
+        return [el, { left: box.left - origin, seen: box.width > 0 }];
+    }));
+}
+/* Ours only: a site's own animations on an item are left alone. */
+function stopMotion(parts) {
+    parts.forEach((el) => el.getAnimations?.().forEach((a) => a.id === MOTION && a.cancel()));
+}
+/* First, last, play: those that were seen slide from where they were —
+   mid-slide too, a new slide picks up where the last one is — those that
+   were not fade in. */
+function move(parts, before, after, duration, easing) {
+    for (const el of parts) {
+        const from = before.get(el);
+        const to = after.get(el);
+        if (!to?.seen)
+            continue;
+        const timing = { duration, easing, id: MOTION };
+        if (from?.seen) {
+            const dx = from.left - to.left;
+            if (Math.abs(dx) >= 0.5)
+                el.animate({ transform: [`translateX(${dx}px)`, "none"] }, timing);
+        }
+        else {
+            el.animate({ opacity: [0, 1] }, timing);
+        }
+    }
+}
 /* Measure the row with every item in it, then hide what does not fit. All
    in one go, before the next paint: nothing is seen in between. */
 function decide(root) {
     const { items, more } = partsOf(root);
     const css = getComputedStyle(root);
     const off = css.getPropertyValue("--pg-fit-more-nav").trim().toLowerCase() === "none";
+    // Where everything stands now — slides running included — in case it
+    // moves. Not read when there is no motion to give.
+    const parts = more ? [...items, more] : items;
+    const duration = durationOf(root, css);
+    const before = duration > 0 && root.clientWidth > 0 ? placesOf(root, parts) : null;
     // Everything in the row, in its own order; "More" shown, to measure it.
     items.forEach((item) => {
         item.removeAttribute(HIDDEN);
@@ -155,13 +222,24 @@ function decide(root) {
         root.setAttribute(OVERFLOW, "true");
     else
         root.removeAttribute(OVERFLOW);
+    let order = [...stay].sort((a, b) => a - b);
     if (picked >= 0) {
-        const order = [...stay].filter((i) => i !== picked).sort((a, b) => a - b);
+        order = order.filter((i) => i !== picked);
         const where = pickedOf(root);
         const at = where === "end" ? order.length : where === "start" ? 0 : Math.min(where - 1, order.length);
         order.splice(at, 0, picked);
         order.forEach((i, n) => items[i].style.setProperty("order", String(n)));
         more?.style.setProperty("order", String(order.length));
+    }
+    // What the row shows, in order, against the last time: only a change
+    // moves anything. The same row a frame later — a window dragged, a
+    // label the same — leaves running slides to finish.
+    const showing = order.join(",") + "|" + items.length + "|" + (hidden.length ? "more" : "");
+    const changed = shown.has(root) && shown.get(root) !== showing;
+    shown.set(root, showing);
+    if (changed && before) {
+        stopMotion(parts);
+        move(parts, before, placesOf(root, parts), duration, css.getPropertyValue("--pg-fit-more-nav-easing").trim() || DEFAULT_EASING);
     }
     // Written only when changed: each write is a change the page sees.
     const count = more?.querySelector(`[${COUNT}]`);
