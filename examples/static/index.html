@@ -337,21 +337,21 @@
                     var(--rail) 0
                 );
             }
+            /* A stop: a faint ring, the thumb's shape — on the fill, a faint
+               ring of the fill's colour. */
             .dots i {
                 position: absolute;
                 top: 50%;
                 left: calc(11px + var(--at) * (100% - 22px));
                 translate: -50% -50%;
-                width: 10px;
-                height: 10px;
+                width: 16px;
+                height: 16px;
+                border: 3px solid color-mix(in srgb, var(--fg) 22%, var(--surface));
                 border-radius: 50%;
-                background: color-mix(in srgb, var(--fg) 28%, var(--surface));
-                box-shadow: 0 0 0 2px var(--bg);
-            }
-            /* Reached: white on the fill. */
-            .dots i[data-passed] {
                 background: var(--surface);
-                box-shadow: none;
+            }
+            .dots i[data-passed] {
+                border-color: color-mix(in srgb, var(--accent) 45%, var(--surface));
             }
             .dots i[hidden] {
                 display: none;
@@ -407,29 +407,34 @@
             /* The stops' names, under their dots — round, and easy to hit. */
             .stops {
                 position: relative;
-                height: 2rem;
+                height: 3rem;
             }
+            /* The width, and under it Tailwind's name for it. */
             .stops button {
                 position: absolute;
                 left: calc(11px + var(--at) * (100% - 22px));
                 translate: -50% 0;
+                display: grid;
+                justify-items: center;
                 font: inherit;
                 font-size: 0.8rem;
+                line-height: 1.25;
+                font-variant-numeric: tabular-nums;
                 white-space: nowrap;
-                color: var(--muted);
-                padding: 0.3rem 0.75rem;
+                color: var(--fg);
+                padding: 0.3rem 0.7rem;
                 border: 0;
-                border-radius: 1rem;
+                border-radius: 0.9rem;
                 background: transparent;
                 cursor: pointer;
                 transition:
                     background 0.15s,
                     color 0.15s;
             }
-            .stops button b {
+            .stops button small {
+                font-size: 0.7rem;
                 font-weight: 600;
-                color: var(--fg);
-                margin-right: 0.15rem;
+                color: var(--muted);
             }
             .stops button:hover {
                 background: color-mix(in srgb, var(--fg) 7%, transparent);
@@ -438,7 +443,7 @@
                 background: var(--accent-soft);
                 color: var(--accent);
             }
-            .stops button[aria-pressed="true"] b {
+            .stops button[aria-pressed="true"] small {
                 color: var(--accent);
             }
             .stops button[hidden] {
@@ -585,9 +590,9 @@
                         <!-- Tailwind's screen sizes that fit on this page (xl, 1280,
                              is wider than it): pressed, the window glides there. -->
                         <div class="stops" id="stops" aria-label="Screen sizes">
-                            <button type="button" data-width="640"><b>sm</b> 640</button>
-                            <button type="button" data-width="768"><b>md</b> 768</button>
-                            <button type="button" data-width="1024"><b>lg</b> 1024</button>
+                            <button type="button" data-width="640">640<small>sm</small></button>
+                            <button type="button" data-width="768">768<small>md</small></button>
+                            <button type="button" data-width="1024">1024<small>lg</small></button>
                         </div>
                     </div>
                     <span class="status" id="status" role="status"></span>
