@@ -269,32 +269,91 @@
                 color: var(--muted);
             }
 
-            /* The ruler: the width, the slider, what fits. */
+            /* The ruler: the width, the slider, what fits. The width and what
+               fits keep their room, so the slider — and its stops — never
+               move as their text changes. */
             .ruler {
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: 7.5rem minmax(0, 1fr) 13rem;
                 align-items: center;
                 gap: 1rem 1.5rem;
                 width: min(100%, 1100px);
                 margin-top: 1.5rem;
             }
+            @media (width < 48rem) {
+                .ruler {
+                    grid-template-columns: 7.5rem minmax(0, 1fr);
+                }
+                .ruler .status {
+                    grid-column: 1 / -1;
+                }
+            }
             .ruler output {
                 font-size: 2.2rem;
                 font-weight: 600;
-                min-width: 5ch;
+                font-variant-numeric: tabular-nums;
             }
             .ruler output small {
                 font-size: 0.9rem;
                 color: var(--muted);
                 font-weight: 400;
             }
-            .ruler input {
-                flex: 1 1 14rem;
+            /* The slider and, under it, Tailwind's screen sizes — each at its
+               place on the slider; one wider than the page can hold is not
+               shown. */
+            .track {
+                display: grid;
+                gap: 0.4rem;
+            }
+            .track input {
+                width: 100%;
+                margin: 0;
                 accent-color: var(--accent);
+            }
+            .stops {
+                position: relative;
+                height: 1.8rem;
+            }
+            .stops button {
+                position: absolute;
+                /* The thumb's centre runs from half a thumb in to half a
+                   thumb short of the end: 16px thumb. */
+                left: calc(8px + var(--at) * (100% - 16px));
+                translate: -50% 0;
+                font: inherit;
+                font-size: 0.75rem;
+                white-space: nowrap;
+                color: var(--muted);
+                padding: 0.2rem 0.5rem;
+                border: 1px solid transparent;
+                border-radius: 0.5rem;
+                background: transparent;
+                cursor: pointer;
+            }
+            .stops button b {
+                font-weight: 600;
+                color: var(--fg);
+            }
+            .stops button:hover {
+                background: color-mix(in srgb, var(--fg) 7%, transparent);
+            }
+            .stops button[aria-pressed="true"] {
+                border-color: var(--accent);
+                background: var(--accent-soft);
+                color: var(--accent);
+            }
+            .stops button[hidden] {
+                display: none;
             }
             .ruler .status {
                 color: var(--accent);
                 font-size: 0.9rem;
+                text-align: end;
+            }
+            @media (width < 48rem) {
+                .ruler .status {
+                    text-align: start;
+                }
             }
         </style>
     </head>
@@ -414,7 +473,16 @@
 
                 <div class="ruler">
                     <output id="width-out" for="width">1100<small> px</small></output>
-                    <input id="width" type="range" min="320" max="1100" step="1" value="1100" aria-label="Window width" />
+                    <div class="track">
+                        <input id="width" type="range" min="320" max="1100" step="1" value="1100" aria-label="Window width" />
+                        <!-- Tailwind's screen sizes that fit on this page (xl, 1280,
+                             is wider than it): pressed, the window glides there. -->
+                        <div class="stops" id="stops" aria-label="Screen sizes">
+                            <button type="button" data-width="640"><b>sm</b> 640</button>
+                            <button type="button" data-width="768"><b>md</b> 768</button>
+                            <button type="button" data-width="1024"><b>lg</b> 1024</button>
+                        </div>
+                    </div>
                     <span class="status" id="status" role="status"></span>
                 </div>
             </div>
@@ -454,6 +522,7 @@
             const slider = document.getElementById("width");
             const out = document.getElementById("width-out");
             const status = document.getElementById("status");
+            const stops = [...document.querySelectorAll("#stops button")];
             const MIN = 320;
             const MAX = 1100;
 
@@ -468,12 +537,44 @@
                 handle.setAttribute("aria-valuenow", String(width));
                 handle.setAttribute("aria-valuetext", `${width} pixels`);
                 out.firstChild.textContent = String(Math.round(win.getBoundingClientRect().width));
+                // The stops: at their place on the slider, gone when wider than
+                // the page, pressed when the window is at that size.
+                stops.forEach((stop) => {
+                    const at = Number(stop.dataset.width);
+                    stop.hidden = at > max;
+                    stop.style.setProperty("--at", String((at - MIN) / Math.max(1, max - MIN)));
+                    stop.setAttribute("aria-pressed", String(Math.abs(width - at) <= 2));
+                });
                 return width;
             };
             // What the reader chose: kept when the page itself narrows and
             // widens again.
             let wanted = MAX;
-            slider.addEventListener("input", () => (wanted = setWidth(Number(slider.value))));
+
+            // A stop pressed: the window glides to it — fast, slowing at the
+            // end; at once with reduced motion. The slider, the handle or a key
+            // stops a glide on its way.
+            let glide = 0;
+            const glideTo = (target) => {
+                const id = ++glide;
+                const from = wanted;
+                const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+                const duration = reduce ? 0 : Math.min(700, 250 + Math.abs(target - from) * 0.5);
+                const start = performance.now();
+                const step = (now) => {
+                    if (id !== glide) return;
+                    const t = duration ? Math.min(1, (now - start) / duration) : 1;
+                    wanted = setWidth(from + (target - from) * (1 - (1 - t) ** 3));
+                    if (t < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+            };
+            stops.forEach((stop) => stop.addEventListener("click", () => glideTo(Number(stop.dataset.width))));
+
+            slider.addEventListener("input", () => {
+                glide++;
+                wanted = setWidth(Number(slider.value));
+            });
 
             // The handle: the window stays centred, so its edge moves half as
             // far as its width changes — the handle stays under the pointer.
@@ -481,6 +582,7 @@
             handle.addEventListener("pointerdown", (event) => {
                 if (event.button > 0) return;
                 event.preventDefault();
+                glide++;
                 handle.setPointerCapture(event.pointerId);
                 const box = win.getBoundingClientRect();
                 drag = { centre: box.left + box.width / 2, grab: event.clientX - box.right };
@@ -502,6 +604,7 @@
                 else if (event.key === "End") width = MAX;
                 else return;
                 event.preventDefault();
+                glide++;
                 wanted = setWidth(width);
             });
             setWidth(wanted);
