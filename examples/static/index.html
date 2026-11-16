@@ -126,8 +126,8 @@
                     0 20px 50px -20px rgb(0 0 0 / 0.25);
             }
 
-            /* The app bar: logo, the row, search. The row takes what is left. */
-            /* Sticky: far down a long tab, the tabs are still at hand. */
+            /* The bar holds the row, which takes its whole width. Sticky: far
+               down a long tab, the tabs are still at hand. */
             .bar {
                 position: sticky;
                 top: 0;
@@ -139,31 +139,6 @@
                 gap: 1rem;
                 padding: 0.6rem 0.9rem;
                 border-bottom: 1px solid var(--line);
-            }
-            .logo {
-                flex: none;
-                display: flex;
-                align-items: center;
-                gap: 0.6rem;
-                font-weight: 600;
-                white-space: nowrap;
-            }
-            .logo i {
-                width: 2rem;
-                height: 2rem;
-                border-radius: 0.6rem;
-                background: var(--accent);
-            }
-            .search {
-                flex: none;
-                width: 2rem;
-                height: 2rem;
-                border: 0;
-                border-radius: 50%;
-                background: transparent;
-                color: var(--muted);
-                font-size: 1.1rem;
-                cursor: pointer;
             }
 
             /* The row, its tabs and "More". */
@@ -335,8 +310,6 @@
             <div class="stage">
                 <div class="window" id="window">
                     <div class="bar">
-                        <span class="logo"><i aria-hidden="true"></i>Studio</span>
-
                         <!-- The row. data-pg-fit-more-nav-priority: higher stays longer
                              (default 0); a tie leaves from the end. -->
                         <nav class="tabs" data-pg-fit-more-nav aria-label="Sections" id="row">
@@ -357,7 +330,6 @@
                             </div>
                         </nav>
 
-                        <button type="button" class="search" aria-label="Search">⌕</button>
                     </div>
 
                     <section class="panel" id="t-overview" data-pg-target="overview tab" data-pg-target-active="true">
