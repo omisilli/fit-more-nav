@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.3.0/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/index.css" />
         <style>
             :root {
                 --bg: #f3f3f1;
@@ -497,8 +497,8 @@
                 </div>
                 <div class="row">
                     <span>The slide</span>
-                    <a id="motion-on" href="?">400ms</a>
-                    <a id="motion-slow" href="?motion=slow">1.2s, to watch it</a>
+                    <a id="motion-on" href="?">200ms</a>
+                    <a id="motion-slow" href="?motion=slow">600ms, to watch it</a>
                     <a id="motion-none" href="?motion=none">none · at once</a>
                 </div>
                 <div class="row">
@@ -633,7 +633,7 @@
         <script type="module">
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.3.0/dist/index.js";
+            import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/dist/index.js";
             import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
 
             const query = new URLSearchParams(location.search);
@@ -646,10 +646,10 @@
                 row.querySelectorAll("[data-pg-fit-more-nav-priority]").forEach((el) => el.removeAttribute("data-pg-fit-more-nav-priority"));
             }
 
-            // ?motion: how long items slide, fly into More and spring out of
-            // it when the row changes — 400ms when left out, 0s at once.
+            // ?motion: how long items slide and fade when the row changes —
+            // 200ms when left out, 0s at once.
             const motion = query.get("motion");
-            if (motion === "slow") row.style.setProperty("--pg-fit-more-nav-duration", "1.2s");
+            if (motion === "slow") row.style.setProperty("--pg-fit-more-nav-duration", "600ms");
             if (motion === "none") row.style.setProperty("--pg-fit-more-nav-duration", "0s");
 
             // ?when: when a pressed tab brings the page back — on the row, so

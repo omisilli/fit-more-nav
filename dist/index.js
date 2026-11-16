@@ -38,16 +38,14 @@
  * --pg-fit-more-nav: none — by screen size, with a media query — leaves
  * every item in the row and "More" away.
  *
- * Motion: when the row changes, the items that stay slide to their new
- * places, never from beyond the row's edge. One that leaves flies into
- * "More", shrinking as it goes — a copy of it, the item itself is already
- * hidden — and "More"'s count jumps. One that comes back springs out of
- * "More"; "More" itself springs in when it first shows. Not on load, not
- * while the fonts arrive, not while a row only moves with its page: only
- * when what the row shows, or its order, changes.
- * --pg-fit-more-nav-duration (400ms; 0s is at once), --pg-fit-more-nav-
- * easing for slides and flights, --pg-fit-more-nav-pop-easing for what
- * springs in. With reduced motion asked for, it is at once.
+ * Motion: when items leave or come back, those that stay slide to their
+ * new places — never from beyond the row's edge, nor past it while a window
+ * is dragged narrow fast — and those that come in fade in, "More" too. Not
+ * on load, not while the fonts arrive, not while a row only moves with its
+ * page: only when what the row shows, or its order, changes.
+ * --pg-fit-more-nav-duration (200ms; 0s is at once) and
+ * --pg-fit-more-nav-easing (any CSS easing). With reduced motion asked
+ * for, it is at once.
  *
  * Keys: with focus on an item or on "More", ← and → go to the one beside it
  * as the row is seen — the current item where it stands, "More" last — and
@@ -63,7 +61,6 @@ const MORE = "data-pg-fit-more-nav-more";
 const LIST = "data-pg-fit-more-nav-list";
 const COUNT = "data-pg-fit-more-nav-count";
 const HIDDEN = "data-pg-fit-more-nav-hidden";
-const GHOST = "data-pg-fit-more-nav-ghost";
 const COPY = "data-pg-fit-more-nav-copy";
 const OVERFLOW = "data-pg-fit-more-nav-overflow";
 const READY = "data-pg-fit-more-nav-ready";
@@ -78,13 +75,8 @@ const copied = new WeakMap();
    it changes. */
 const shown = new WeakMap();
 const MOTION = "pg-fit-more-nav";
-const DEFAULT_DURATION = 400;
-const DEFAULT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
-const DEFAULT_POP_EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-/* Copies flying into "More" at once, at most: a window dragged fast hides
-   many items in a few frames. */
-const MAX_GHOSTS = 6;
-let ghosts = 0;
+const DEFAULT_DURATION = 200;
+const DEFAULT_EASING = "cubic-bezier(0.2, 0, 0, 1)";
 const px = (value) => parseFloat(value) || 0;
 /* The row's own items and its "More" — not those of a row inside it. */
 function partsOf(root) {
@@ -163,7 +155,6 @@ function placesOf(root, parts) {
         return [el, { left: box.left - origin.left, top: box.top - origin.top, width: box.width, seen: box.width > 0 }];
     }));
 }
-const centre = (p) => p.left + p.width / 2;
 /* Ours only: a site's own animations on an item are left alone. */
 function stopMotion(parts) {
     parts.forEach((el) => el.getAnimations?.().forEach((a) => a.id === MOTION && a.cancel()));
@@ -195,83 +186,29 @@ function keepInside(root, parts, seen, motion) {
             el.animate({ transform: [`translateX(${dx}px)`, "none"] }, { duration: left, easing: motion.easing, id: MOTION });
     }
 }
-/* An item that left, on its way into "More": a copy of it where it stood,
-   beside it in the same parent — so the site's styles for it still hold —
-   out of the flow, unseen by keys and screen readers, gone when it lands. */
-function fly(root, item, from, to, motion) {
-    if (ghosts >= MAX_GHOSTS)
-        return;
-    const ghost = item.cloneNode(true);
-    [ghost, ...ghost.querySelectorAll("[id]")].forEach((el) => el.removeAttribute("id"));
-    [ITEM, PRIORITY, HIDDEN].forEach((name) => ghost.removeAttribute(name));
-    ghost.setAttribute(GHOST, "");
-    ghost.setAttribute("aria-hidden", "true");
-    ghost.inert = true;
-    Object.assign(ghost.style, { position: "absolute", left: "0px", top: "0px", margin: "0px", width: `${from.width}px`, pointerEvents: "none", order: "" });
-    item.after(ghost);
-    // Put where the item stood, whatever its containing block is.
-    const origin = root.getBoundingClientRect();
-    const box = ghost.getBoundingClientRect();
-    ghost.style.left = `${from.left - (box.left - origin.left)}px`;
-    ghost.style.top = `${from.top - (box.top - origin.top)}px`;
-    ghosts++;
-    let gone = false;
-    const land = () => {
-        if (gone)
-            return;
-        gone = true;
-        ghosts--;
-        ghost.remove();
-    };
-    const dx = centre(to) - centre(from);
-    const flight = ghost.animate({ transform: ["none", `translateX(${dx}px) scale(0.4)`], opacity: [1, 0] }, { duration: motion.duration, easing: motion.easing, fill: "forwards" });
-    flight.onfinish = land;
-    flight.oncancel = land;
-    // A tab in the background does not play animations: it lands anyway.
-    setTimeout(land, motion.duration + 100);
-}
-/* First, last, play. Those seen before and after slide from where they
-   were — never from beyond the row's right edge, so nothing chases the row
-   as it is dragged narrow. Those that left fly into "More"; those that came
-   back spring out of it; "More" springs in when it first shows, and its
-   count jumps when it changes. */
-function move(root, items, more, before, motion, counted) {
-    const parts = more ? [...items, more] : items;
+/* First, last, play: those seen before and after slide from where they
+   were — mid-slide too, a new slide picks up where the last one is — but
+   never from beyond the row's right edge, so nothing chases a row dragged
+   narrow. Those that were not seen — an item back from "More", "More"
+   itself — fade in. */
+function move(root, parts, before, motion) {
     stopMotion(parts);
     const after = placesOf(root, parts);
     const edge = edgeOf(root);
-    const slide = { duration: motion.duration, easing: motion.easing, id: MOTION };
-    const pop = { duration: motion.duration, easing: motion.pop, id: MOTION };
-    const moreWas = more ? before.get(more) : undefined;
-    const moreIs = more ? after.get(more) : undefined;
-    const door = moreWas?.seen ? moreWas : moreIs?.seen ? moreIs : null;
+    const timing = { duration: motion.duration, easing: motion.easing, id: MOTION };
     for (const el of parts) {
         const from = before.get(el);
         const to = after.get(el);
-        if (from?.seen && !to?.seen) {
-            if (el !== more && moreIs?.seen)
-                fly(root, el, from, moreIs, motion);
-            continue;
-        }
         if (!to?.seen)
             continue;
         if (from?.seen) {
             const dx = Math.min(from.left, edge - to.width) - to.left;
             if (Math.abs(dx) >= 0.5)
-                el.animate({ transform: [`translateX(${dx}px)`, "none"] }, slide);
-        }
-        else if (el === more || !door) {
-            el.animate({ transform: ["scale(0.6)", "none"], opacity: [0, 1] }, pop);
+                el.animate({ transform: [`translateX(${dx}px)`, "none"] }, timing);
         }
         else {
-            const dx = Math.min(centre(door), edge - to.width / 2) - centre(to);
-            el.animate({ transform: [`translateX(${dx}px) scale(0.5)`, "none"], opacity: [0, 1] }, pop);
+            el.animate({ opacity: [0, 1] }, timing);
         }
-    }
-    const count = more?.querySelector(`[${COUNT}]`);
-    if (count && counted && moreWas?.seen && moreIs?.seen) {
-        count.getAnimations?.().forEach((a) => a.id === MOTION && a.cancel());
-        count.animate({ transform: ["scale(1.5)", "none"] }, pop);
     }
 }
 /* Measure the row with every item in it, then hide what does not fit. All
@@ -336,8 +273,7 @@ function decide(root) {
     // Written only when changed: each write is a change the page sees.
     const count = more?.querySelector(`[${COUNT}]`);
     const text = hidden.length ? String(hidden.length) : "";
-    const counted = !!count && count.textContent !== text;
-    if (count && counted)
+    if (count && count.textContent !== text)
         count.textContent = text;
     const list = more?.querySelector(`[${LIST}]`);
     const holds = hidden.map((item) => items.indexOf(item)).join(",") + "|" + items.length;
@@ -347,15 +283,12 @@ function decide(root) {
     }
     if (before) {
         const read = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
-        const motion = {
-            duration,
-            easing: read("--pg-fit-more-nav-easing", DEFAULT_EASING),
-            pop: read("--pg-fit-more-nav-pop-easing", DEFAULT_POP_EASING),
-        };
+        const motion = { duration, easing: read("--pg-fit-more-nav-easing", DEFAULT_EASING) };
+        const parts = more ? [...items, more] : items;
         if (changed)
-            move(root, items, more, before, motion, counted);
+            move(root, parts, before, motion);
         else
-            keepInside(root, more ? [...items, more] : items, before, motion);
+            keepInside(root, parts, before, motion);
     }
     if (!root.hasAttribute(READY))
         root.setAttribute(READY, "");
@@ -392,7 +325,18 @@ export function initFitMoreNav() {
     let roots = [];
     let dirty = true;
     let frame = 0;
-    const sizes = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => schedule());
+    // A row resized decides at once: the observer answers after layout and
+    // before paint, so no frame is painted with the row narrower and its
+    // items not yet gone — a window dragged fast would show them past its
+    // edge. Hiding items does not resize the row (index.css gives it its
+    // width from its place), so this does not call itself again.
+    const sizes = typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            if (frame)
+                cancelAnimationFrame(frame);
+            update();
+        });
     const update = () => {
         frame = 0;
         if (live !== self)
@@ -421,11 +365,7 @@ export function initFitMoreNav() {
     const mo = new MutationObserver((records) => {
         let changed = false;
         for (const r of records) {
-            const nodes = [...r.addedNodes, ...r.removedNodes];
-            // A copy flying into "More", come or gone: not the row's own.
-            if (r.type === "childList" && nodes.length && nodes.every((n) => n instanceof Element && n.hasAttribute(GHOST)))
-                continue;
-            if (r.type === "childList" && nodes.some(holdsRow))
+            if (r.type === "childList" && [...r.addedNodes, ...r.removedNodes].some(holdsRow))
                 dirty = true;
             if (r.type === "attributes" && r.attributeName === ROOT)
                 dirty = true;
