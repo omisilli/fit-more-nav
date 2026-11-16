@@ -9,10 +9,12 @@
  *   --pg-fit-more-nav-picked   end (default) · start · 3 — where the current
  *                              item stands while the row is too narrow for
  *                              it in its own place
- *   --pg-fit-more-nav-duration 200ms (default) — how long items slide and
- *                              fade when the row changes; 0s is at once
- *   --pg-fit-more-nav-easing   any CSS easing (default
- *                              cubic-bezier(0.2, 0, 0, 1))
+ *   --pg-fit-more-nav-duration 400ms (default) — how long items move when
+ *                              the row changes; 0s is at once
+ *   --pg-fit-more-nav-easing   slides and flights into "More" (default
+ *                              cubic-bezier(0.22, 1, 0.36, 1))
+ *   --pg-fit-more-nav-pop-easing  what springs in (default
+ *                              cubic-bezier(0.34, 1.56, 0.64, 1))
  */
 
 /* One line, never wrapped. Its width comes from its place, not from its

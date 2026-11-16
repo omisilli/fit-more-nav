@@ -19,7 +19,7 @@ leaves it. No dependencies.
 npm install github:omisilli/dropdown#v1.4.1
 npm install github:omisilli/target-functions#v3.2.0   # for tabs
 npm install github:omisilli/anchor#v3.3.0             # for long tabs
-npm install github:omisilli/fit-more-nav#v1.2.0
+npm install github:omisilli/fit-more-nav#v1.3.0
 ```
 
 ```ts
@@ -43,12 +43,12 @@ Each returns its own cleanup.
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.2.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.3.0/index.css" />
 <script type="module">
     import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
     import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
     import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.0/dist/index.js";
-    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.2.0/dist/index.js";
+    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.3.0/dist/index.js";
 
     initDropdown();
     initTargetFunctions();
@@ -165,20 +165,29 @@ With focus on an item, or on "More":
 
 Inside "More"'s list the keys are dropdown's, not the row's.
 
-### It slides
+### It moves
 
-When items leave or come back, those that stay slide to their new places
-and those that come in — an item back from "More", "More" itself — fade
-in. A tab picked from "More" fades in where it stands, and the others make
-room for it. Only a change moves anything: on load, while the fonts
-arrive, and while a row only moves with its page (a centred header
-growing), it takes its shape at once. A window dragged narrow picks each
-slide up where the last one is.
+When the row changes, you see what went where:
 
-`--pg-fit-more-nav-duration` and `--pg-fit-more-nav-easing` set it; `0s`
-turns it off. With reduced motion asked for, it is at once. Its own Web
-Animations, no animation library: a site's own animations on the items are
-left alone.
+| What                         | How it moves                                                          |
+| ---------------------------- | --------------------------------------------------------------------- |
+| An item that stays           | Slides to its new place — never from beyond the row's right edge, so nothing chases a row dragged narrow |
+| An item that leaves          | Flies into "More", shrinking and fading — a copy of it, beside it in the same parent so your styles hold; out of the flow, inert, gone when it lands |
+| An item that comes back      | Springs out of "More" into its place — a tab picked from "More" too   |
+| "More", when it first shows  | Springs in                                                            |
+| "More"'s count, when it changes | Jumps once                                                         |
+
+Only a change moves anything: on load, while the fonts arrive, and while a
+row only moves with its page (a centred header growing), it takes its
+shape at once. A window dragged fast picks each slide up where the last
+one is, and at most six copies fly at once.
+
+`--pg-fit-more-nav-duration` sets how long, `--pg-fit-more-nav-easing` the
+slides and flights, `--pg-fit-more-nav-pop-easing` what springs in; `0s`
+turns it all off. With reduced motion asked for, it is at once. Its own
+Web Animations, no animation library: a site's own animations on the items
+are left alone. The count jumps only if it is not `display: inline` — a
+transform needs a box.
 
 ### Nothing is moved or made
 
@@ -197,8 +206,9 @@ with media queries:
 | -------------------------- | ------- | --------------------------------------------------------- |
 | `--pg-fit-more-nav`        | —       | `none`: every item in the row, no "More"                  |
 | `--pg-fit-more-nav-picked` | `end`   | Where the current item stands while the row is too narrow — `end`, `start` or a place from 1 |
-| `--pg-fit-more-nav-duration` | `200ms` | How long items slide and fade when the row changes; `0s` is at once |
-| `--pg-fit-more-nav-easing` | `cubic-bezier(0.2, 0, 0, 1)` | Any CSS easing: `ease-out`, `linear`, `cubic-bezier(…)` |
+| `--pg-fit-more-nav-duration` | `400ms` | How long items move when the row changes; `0s` is at once |
+| `--pg-fit-more-nav-easing` | `cubic-bezier(0.22, 1, 0.36, 1)` | Slides and flights into "More" — any CSS easing |
+| `--pg-fit-more-nav-pop-easing` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | What springs in — out of "More", "More" itself, its count; past 1 overshoots |
 
 Before the script has looked, the row is cut at its end
 (`overflow: clip`) rather than spilling out; "More" shows only when
