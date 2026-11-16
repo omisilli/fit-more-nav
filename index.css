@@ -1,0 +1,45 @@
+/*
+ * fit-more-nav — the CSS half: the row that never wraps, what is hidden,
+ * when "More" shows. Colours, borders, fonts belong to the theme; "More"
+ * itself is the dropdown package's.
+ *
+ * Set anywhere above the row — :root, the row itself — and changed per
+ * screen size with media queries like any CSS:
+ *   --pg-fit-more-nav          none: every item in the row, no "More"
+ *   --pg-fit-more-nav-picked   end (default) · start · 3 — where the current
+ *                              item stands while the row is too narrow for
+ *                              it in its own place
+ */
+
+/* One line, never wrapped. Its width comes from its place, not from its
+   items: in a flex header it takes what is left between the logo and the
+   rest — so hiding an item never makes the row narrower, and the row is
+   measured as it really is. */
+[data-pg-fit-more-nav] {
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+/* Items and "More" keep their width: they are hidden whole, never squeezed. */
+[data-pg-fit-more-nav-item],
+[data-pg-fit-more-nav-more] {
+    flex: none;
+    white-space: nowrap;
+}
+
+[data-pg-fit-more-nav-hidden] {
+    display: none !important;
+}
+
+/* "More" only when something is in it — and not before the first look. */
+[data-pg-fit-more-nav]:not([data-pg-fit-more-nav-overflow="true"]) [data-pg-fit-more-nav-more] {
+    display: none;
+}
+
+/* Before the script has looked, items that will move to "More" are cut at
+   the row's end rather than spilling out of it. */
+[data-pg-fit-more-nav]:not([data-pg-fit-more-nav-ready]) {
+    overflow: clip;
+}

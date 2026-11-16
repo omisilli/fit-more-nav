@@ -1,0 +1,21 @@
+{
+    "name": "@plusguard/fit-more-nav",
+    "version": "1.0.0",
+    "description": "A row that always fits: menu items or tabs that don't fit move to a \"More\" dropdown, by priority, and come back as the row grows. The current one never hides. Completes @plusguard/dropdown (and target-functions for tabs). No dependencies.",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+        "./index.css": "./index.css"
+    },
+    "files": ["dist", "index.ts", "index.css", "README.md", "LICENSE"],
+    "sideEffects": ["*.css"],
+    "scripts": {
+        "build": "npx -p typescript tsc index.ts --outDir dist --declaration --target es2020 --module es2020 --lib dom,dom.iterable,es2020 --strict"
+    },
+    "license": "MIT",
+    "author": "PlusGuard",
+    "repository": { "type": "git", "url": "git+https://github.com/omisilli/fit-more-nav.git" },
+    "keywords": ["priority-navigation", "priority-plus", "more-menu", "overflow-menu", "tabs", "responsive", "vanilla"]
+}

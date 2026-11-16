@@ -1,0 +1,449 @@
+<!doctype html>
+<!-- fit-more-nav with the two packages it completes: dropdown draws "More",
+     targetFunctions opens the tabs. Those two load from jsDelivr, pinned;
+     fit-more-nav loads from this repo's own files (../../) until its first
+     release, so open this page through a local server, not by
+     double-clicking. The switches are links: ?picked=start, ?picked=3,
+     ?priority=none — each keeps the others. -->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>fit-more-nav — example</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
+        <link rel="stylesheet" href="../../index.css" />
+        <style>
+            :root {
+                --bg: #f3f3f1;
+                --surface: #ffffff;
+                --fg: #18181b;
+                --muted: #6b6b72;
+                --line: #e4e4e0;
+                --accent: #2f5bea;
+                --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+                --count: #e5484d;
+                color-scheme: light dark;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #111113;
+                    --surface: #1b1b1f;
+                    --fg: #ededef;
+                    --muted: #9a9aa3;
+                    --line: #2c2c31;
+                    --accent: #7c9cff;
+                }
+            }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+            }
+            body {
+                font:
+                    16px/1.6 system-ui,
+                    -apple-system,
+                    "Segoe UI",
+                    Roboto,
+                    sans-serif;
+                color: var(--fg);
+                background: var(--bg);
+            }
+            code {
+                font:
+                    0.85em/1.4 ui-monospace,
+                    SFMono-Regular,
+                    Menlo,
+                    monospace;
+                padding: 0.15em 0.4em;
+                border-radius: 0.35em;
+                background: color-mix(in srgb, var(--fg) 8%, transparent);
+            }
+            main {
+                max-width: 72rem;
+                margin: 0 auto;
+                padding: 3rem 1rem 6rem;
+                display: grid;
+                gap: 2rem;
+            }
+            header {
+                max-width: 46rem;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            header p {
+                color: var(--muted);
+                margin-top: 0.5rem;
+            }
+
+            /* The switches. */
+            .switches {
+                display: grid;
+                gap: 0.5rem;
+            }
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            .row > span {
+                min-width: 11rem;
+                color: var(--muted);
+                font-size: 0.9rem;
+            }
+            .row a {
+                font-size: 0.85rem;
+                color: inherit;
+                padding: 0.35rem 0.8rem;
+                border: 1px solid var(--line);
+                border-radius: 0.6rem;
+                background: var(--surface);
+                text-decoration: none;
+            }
+            .row a[aria-current="true"] {
+                background: var(--fg);
+                color: var(--bg);
+                border-color: var(--fg);
+            }
+
+            /* The "window": its width comes from the slider below. */
+            .stage {
+                display: grid;
+                justify-items: center;
+            }
+            .window {
+                width: var(--window, 1100px);
+                max-width: 100%;
+                border-radius: 1rem;
+                background: var(--surface);
+                box-shadow:
+                    0 1px 2px rgb(0 0 0 / 0.06),
+                    0 20px 50px -20px rgb(0 0 0 / 0.25);
+            }
+
+            /* The app bar: logo, the row, search. The row takes what is left. */
+            .bar {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.6rem 0.9rem;
+                border-bottom: 1px solid var(--line);
+            }
+            .logo {
+                flex: none;
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            .logo i {
+                width: 2rem;
+                height: 2rem;
+                border-radius: 0.6rem;
+                background: var(--accent);
+            }
+            .search {
+                flex: none;
+                width: 2rem;
+                height: 2rem;
+                border: 0;
+                border-radius: 50%;
+                background: transparent;
+                color: var(--muted);
+                font-size: 1.1rem;
+                cursor: pointer;
+            }
+
+            /* The row, its tabs and "More". */
+            .tabs {
+                gap: 0.25rem;
+                align-items: center;
+            }
+            .tab,
+            .more-head {
+                font: inherit;
+                font-size: 0.95rem;
+                color: var(--muted);
+                padding: 0.45rem 0.8rem;
+                border: 0;
+                border-radius: 0.6rem;
+                background: transparent;
+                cursor: pointer;
+            }
+            .tab:hover,
+            .more-head:hover {
+                color: var(--fg);
+            }
+            .tab[aria-expanded="true"] {
+                color: var(--accent);
+                background: var(--accent-soft);
+            }
+            .more-head {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+            .more-head::after {
+                content: "";
+                width: 0.45rem;
+                height: 0.45rem;
+                border: solid currentColor;
+                border-width: 0 1.5px 1.5px 0;
+                rotate: 45deg;
+                translate: 0 -0.15rem;
+            }
+            [data-pg-dropdown-active="true"] .more-head::after {
+                rotate: -135deg;
+                translate: 0 0.15rem;
+            }
+            .more-head b {
+                min-width: 1.3rem;
+                padding: 0 0.35rem;
+                border-radius: 1rem;
+                background: var(--count);
+                color: #fff;
+                font-size: 0.75rem;
+                line-height: 1.3rem;
+                text-align: center;
+            }
+            /* "More"'s list: the copies of the tabs that did not fit. */
+            .more-list {
+                --pg-dropdown-offset: 0.5rem;
+                min-width: 12rem;
+                padding: 0.35rem;
+                border: 1px solid var(--line);
+                border-radius: 0.8rem;
+                background: var(--surface);
+                box-shadow: 0 16px 40px -16px rgb(0 0 0 / 0.3);
+                display: grid;
+            }
+            .more-list .tab {
+                text-align: left;
+                color: var(--fg);
+            }
+            .more-list .tab:hover,
+            .more-list .tab:focus-visible {
+                background: var(--accent-soft);
+            }
+
+            /* The panels: one open at a time — targetFunctions. */
+            .panel {
+                padding: 1.75rem 1.5rem 2rem;
+            }
+            .panel[data-pg-target-active="false"] {
+                display: none;
+            }
+            .panel small {
+                font-size: 0.75rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--count);
+            }
+            .panel h2 {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                margin: 0.2rem 0 0.4rem;
+            }
+            .panel p {
+                color: var(--muted);
+            }
+
+            /* The ruler: the width, the slider, what fits. */
+            .ruler {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 1rem 1.5rem;
+                width: min(100%, 1100px);
+                margin-top: 1.5rem;
+            }
+            .ruler output {
+                font-size: 2.2rem;
+                font-weight: 600;
+                min-width: 5ch;
+            }
+            .ruler output small {
+                font-size: 0.9rem;
+                color: var(--muted);
+                font-weight: 400;
+            }
+            .ruler input {
+                flex: 1 1 14rem;
+                accent-color: var(--accent);
+            }
+            .ruler .status {
+                color: var(--accent);
+                font-size: 0.9rem;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <header>
+                <h1>fit-more-nav</h1>
+                <p>
+                    A row of tabs that always fits. Narrow the window below: the tabs that no longer fit move to
+                    <b>More</b>, the lowest priority first, and come back as it grows. The open tab never leaves —
+                    pick one from More and it comes into the row while another goes. "More" is a
+                    <code>dropdown</code>, the tabs are <code>targetFunctions</code>; fit-more-nav only measures
+                    and decides.
+                </p>
+            </header>
+
+            <section class="switches" aria-label="Switches">
+                <div class="row">
+                    <span>Picked from More, it stands</span>
+                    <a id="picked-end" href="?">at the end</a>
+                    <a id="picked-start" href="?picked=start">at the start</a>
+                    <a id="picked-3" href="?picked=3">third</a>
+                </div>
+                <div class="row">
+                    <span>Which leave first</span>
+                    <a id="priority-on" href="?">by priority</a>
+                    <a id="priority-off" href="?priority=none">from the end</a>
+                </div>
+                <div class="row">
+                    <span>A link to a tab</span>
+                    <a id="hash" href="#t-team" target="_blank">Open #t-team in a new tab</a>
+                </div>
+            </section>
+
+            <div class="stage">
+                <div class="window" id="window">
+                    <div class="bar">
+                        <span class="logo"><i aria-hidden="true"></i>Studio</span>
+
+                        <!-- The row. data-pg-fit-more-nav-priority: higher stays longer
+                             (default 0); a tie leaves from the end. -->
+                        <nav class="tabs" data-pg-fit-more-nav aria-label="Sections" id="row">
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="5" data-pg-target-functions="close-tab-except-overview open-overview" aria-controls="t-overview">Overview</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="4" data-pg-target-functions="close-tab-except-catalog open-catalog" aria-controls="t-catalog">Catalog</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="3" data-pg-target-functions="close-tab-except-services open-services" aria-controls="t-services">Services</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="0" data-pg-target-functions="close-tab-except-projects open-projects" aria-controls="t-projects">Projects</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-2" data-pg-target-functions="close-tab-except-news open-news" aria-controls="t-news">News</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-1" data-pg-target-functions="close-tab-except-team open-team" aria-controls="t-team">Team</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="1" data-pg-target-functions="close-tab-except-help open-help" aria-controls="t-help">Help</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="2" data-pg-target-functions="close-tab-except-contact open-contact" aria-controls="t-contact">Contact</button>
+
+                            <!-- "More": a dropdown. Its list stays empty here —
+                                 fit-more-nav fills it with copies. -->
+                            <div data-pg-fit-more-nav-more data-pg-dropdown data-pg-dropdown-active="false" data-pg-dropdown-x="end">
+                                <button type="button" class="more-head" data-pg-dropdown-head aria-expanded="false">More <b data-pg-fit-more-nav-count aria-hidden="true"></b></button>
+                                <div class="more-list" data-pg-dropdown-body data-pg-fit-more-nav-list></div>
+                            </div>
+                        </nav>
+
+                        <button type="button" class="search" aria-label="Search">⌕</button>
+                    </div>
+
+                    <section class="panel" id="t-overview" data-pg-target="overview tab" data-pg-target-active="true">
+                        <small>Section</small>
+                        <h2>Overview</h2>
+                        <p>Everything at a glance. This tab has the highest priority: it is the last to leave.</p>
+                    </section>
+                    <section class="panel" id="t-catalog" data-pg-target="catalog tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Catalog</h2>
+                        <p>Pieces, materials and sizes to order.</p>
+                    </section>
+                    <section class="panel" id="t-services" data-pg-target="services tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Services</h2>
+                        <p>Design, making and fitting, with one contact.</p>
+                    </section>
+                    <section class="panel" id="t-projects" data-pg-target="projects tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Projects</h2>
+                        <p>Finished work, with how it was done.</p>
+                    </section>
+                    <section class="panel" id="t-news" data-pg-target="news tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>News</h2>
+                        <p>The lowest priority: the first to leave for More.</p>
+                    </section>
+                    <section class="panel" id="t-team" data-pg-target="team tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Team</h2>
+                        <p>Opened by a link? It is in the row, however narrow — another tab made room.</p>
+                    </section>
+                    <section class="panel" id="t-help" data-pg-target="help tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Help</h2>
+                        <p>Orders, delivery times, guarantees.</p>
+                    </section>
+                    <section class="panel" id="t-contact" data-pg-target="contact tab" data-pg-target-active="false">
+                        <small>Section</small>
+                        <h2>Contact</h2>
+                        <p>Write to us; we answer the same working day.</p>
+                    </section>
+                </div>
+
+                <div class="ruler">
+                    <output id="width-out" for="width">1100<small> px</small></output>
+                    <input id="width" type="range" min="320" max="1100" step="1" value="1100" aria-label="Window width" />
+                    <span class="status" id="status" role="status"></span>
+                </div>
+            </div>
+        </main>
+
+        <script type="module">
+            import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/dist/index.js";
+            import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
+            import { initFitMoreNav } from "../../dist/index.js";
+
+            const query = new URLSearchParams(location.search);
+            const row = document.getElementById("row");
+
+            // The switches, written onto the row before anything measures it.
+            const picked = query.get("picked");
+            if (picked === "start" || picked === "3") row.style.setProperty("--pg-fit-more-nav-picked", picked);
+            if (query.get("priority") === "none") {
+                row.querySelectorAll("[data-pg-fit-more-nav-priority]").forEach((el) => el.removeAttribute("data-pg-fit-more-nav-priority"));
+            }
+
+            // The three packages, side by side — none knows the others.
+            initTargetFunctions();
+            initDropdown();
+            initFitMoreNav();
+
+            // The demo's own: the window's width, and what fits.
+            const win = document.getElementById("window");
+            const slider = document.getElementById("width");
+            const out = document.getElementById("width-out");
+            const status = document.getElementById("status");
+            const setWidth = (w) => {
+                win.style.setProperty("--window", `${w}px`);
+                out.firstChild.textContent = String(Math.round(win.getBoundingClientRect().width));
+            };
+            slider.addEventListener("input", () => setWidth(slider.value));
+            const show = () => {
+                const items = row.querySelectorAll("[data-pg-fit-more-nav-item]");
+                const hidden = row.querySelectorAll("[data-pg-fit-more-nav-item][data-pg-fit-more-nav-hidden]").length;
+                status.textContent = hidden ? `${items.length - hidden} in the row · ${hidden} in More` : `all ${items.length} in the row`;
+            };
+            new MutationObserver(show).observe(row, { attributes: true, subtree: true, attributeFilter: ["data-pg-fit-more-nav-hidden"] });
+            show();
+            addEventListener("resize", () => setWidth(slider.value));
+
+            // The links keep each other.
+            const link = (name, value) => {
+                const next = new URLSearchParams(query);
+                if (value) next.set(name, value);
+                else next.delete(name);
+                const s = next.toString();
+                return s ? `?${s}` : location.pathname;
+            };
+            document.getElementById("picked-end").href = link("picked", null);
+            document.getElementById("picked-start").href = link("picked", "start");
+            document.getElementById("picked-3").href = link("picked", "3");
+            document.getElementById(`picked-${picked === "start" || picked === "3" ? picked : "end"}`).setAttribute("aria-current", "true");
+            document.getElementById("priority-on").href = link("priority", null);
+            document.getElementById("priority-off").href = link("priority", "none");
+            document.getElementById(query.get("priority") === "none" ? "priority-off" : "priority-on").setAttribute("aria-current", "true");
+            document.getElementById("hash").href = `${link("x", null)}#t-team`;
+        </script>
+    </body>
+</html>
