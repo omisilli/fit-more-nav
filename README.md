@@ -204,4 +204,7 @@ development), only the newest call answers. See
 [`examples/static/index.html`](examples/static/index.html) — tabs in an app
 bar, a window you narrow with a slider, and switches for where the picked
 tab stands (`?picked=start`, `?picked=3`), for leaving by priority or from
-the end (`?priority=none`), and a link that opens a tab by `#id`.
+the end (`?priority=none`), and a link that opens a tab by `#id`. anchor
+sits beside it: far down the long first tab, a tab pressed in the row or
+in "More" brings the page back to its start (`?when=always`,
+`?when=never` to compare).

@@ -2,8 +2,9 @@
 <!-- Open by double-clicking: everything loads from jsDelivr, pinned to a
      release, so the page and the code always match. fit-more-nav with the
      two packages it completes: dropdown draws "More", targetFunctions opens
-     the tabs. The switches are links: ?picked=start, ?picked=3,
-     ?priority=none — each keeps the others. -->
+     the tabs — and anchor beside them, bringing a long tab back to its start.
+     The switches are links: ?picked=start, ?picked=3, ?priority=none,
+     ?when=always, ?when=never — each keeps the others. -->
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -11,6 +12,7 @@
         <title>fit-more-nav — example</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/index.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/index.css" />
         <style>
             :root {
@@ -58,10 +60,12 @@
                 border-radius: 0.35em;
                 background: color-mix(in srgb, var(--fg) 8%, transparent);
             }
+            /* Room below the window: a short tab opened from far down a long
+               one can still be scrolled to its start. */
             main {
                 max-width: 72rem;
                 margin: 0 auto;
-                padding: 3rem 1rem 6rem;
+                padding: 3rem 1rem 80vh;
                 display: grid;
                 gap: 2rem;
             }
@@ -123,7 +127,13 @@
             }
 
             /* The app bar: logo, the row, search. The row takes what is left. */
+            /* Sticky: far down a long tab, the tabs are still at hand. */
             .bar {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                border-radius: 1rem 1rem 0 0;
+                background: var(--surface);
                 display: flex;
                 align-items: center;
                 gap: 1rem;
@@ -229,8 +239,13 @@
             }
 
             /* The panels: one open at a time — targetFunctions. */
+            /* Where anchor brings a tab's start: just below the sticky bar. */
             .panel {
                 padding: 1.75rem 1.5rem 2rem;
+                scroll-margin-top: 3.25rem;
+            }
+            .panel p + p {
+                margin-top: 0.9rem;
             }
             .panel[data-pg-target-active="false"] {
                 display: none;
@@ -288,7 +303,8 @@
                     <b>More</b>, the lowest priority first, and come back as it grows. The open tab never leaves —
                     pick one from More and it comes into the row while another goes. "More" is a
                     <code>dropdown</code>, the tabs are <code>targetFunctions</code>; fit-more-nav only measures
-                    and decides.
+                    and decides. <code>anchor</code> sits beside them: read far down the long Overview tab, press
+                    another tab — in the row or in More — and the page comes back to the new tab's start.
                 </p>
             </header>
 
@@ -305,6 +321,12 @@
                     <a id="priority-off" href="?priority=none">from the end</a>
                 </div>
                 <div class="row">
+                    <span>A tab pressed far down</span>
+                    <a id="when-passed" href="?">back to its start</a>
+                    <a id="when-always" href="?when=always">always to its start</a>
+                    <a id="when-never" href="?when=never">left where you were</a>
+                </div>
+                <div class="row">
                     <span>A link to a tab</span>
                     <a id="hash" href="#t-team" target="_blank">Open #t-team in a new tab</a>
                 </div>
@@ -318,14 +340,14 @@
                         <!-- The row. data-pg-fit-more-nav-priority: higher stays longer
                              (default 0); a tie leaves from the end. -->
                         <nav class="tabs" data-pg-fit-more-nav aria-label="Sections" id="row">
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="5" data-pg-target-functions="close-tab-except-overview open-overview" aria-controls="t-overview">Overview</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="4" data-pg-target-functions="close-tab-except-catalog open-catalog" aria-controls="t-catalog">Catalog</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="3" data-pg-target-functions="close-tab-except-services open-services" aria-controls="t-services">Services</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="0" data-pg-target-functions="close-tab-except-projects open-projects" aria-controls="t-projects">Projects</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-2" data-pg-target-functions="close-tab-except-news open-news" aria-controls="t-news">News</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-1" data-pg-target-functions="close-tab-except-team open-team" aria-controls="t-team">Team</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="1" data-pg-target-functions="close-tab-except-help open-help" aria-controls="t-help">Help</button>
-                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="2" data-pg-target-functions="close-tab-except-contact open-contact" aria-controls="t-contact">Contact</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="5" data-pg-target-functions="close-tab-except-overview open-overview" data-pg-anchor="#t-overview" aria-controls="t-overview">Overview</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="4" data-pg-target-functions="close-tab-except-catalog open-catalog" data-pg-anchor="#t-catalog" aria-controls="t-catalog">Catalog</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="3" data-pg-target-functions="close-tab-except-services open-services" data-pg-anchor="#t-services" aria-controls="t-services">Services</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="0" data-pg-target-functions="close-tab-except-projects open-projects" data-pg-anchor="#t-projects" aria-controls="t-projects">Projects</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-2" data-pg-target-functions="close-tab-except-news open-news" data-pg-anchor="#t-news" aria-controls="t-news">News</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="-1" data-pg-target-functions="close-tab-except-team open-team" data-pg-anchor="#t-team" aria-controls="t-team">Team</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="1" data-pg-target-functions="close-tab-except-help open-help" data-pg-anchor="#t-help" aria-controls="t-help">Help</button>
+                            <button type="button" class="tab" data-pg-fit-more-nav-item data-pg-fit-more-nav-priority="2" data-pg-target-functions="close-tab-except-contact open-contact" data-pg-anchor="#t-contact" aria-controls="t-contact">Contact</button>
 
                             <!-- "More": a dropdown. Its list stays empty here —
                                  fit-more-nav fills it with copies. -->
@@ -340,8 +362,15 @@
 
                     <section class="panel" id="t-overview" data-pg-target="overview tab" data-pg-target-active="true">
                         <small>Section</small>
-                        <h2>Overview</h2>
+                        <h2>Overview — a long tab</h2>
                         <p>Everything at a glance. This tab has the highest priority: it is the last to leave.</p>
+                        <p>Read on to the end of it, then press another tab — Contact in the row, or News from More. anchor brings the page back to the start of the tab you pressed, under the bar that followed you down.</p>
+                        <p>These paragraphs only make the tab long. A page of terms or a long product description reads like this: section after section, the reader far below where the tab began by the time they reach the bottom.</p>
+                        <p>Without anchor the new tab opens down here, at the height of the old one, and the reader lands in its middle — or below its end, looking at nothing.</p>
+                        <p>With <code>--pg-anchor-when: passed</code> anchor only goes back up: pressed at the top of the tabs, or above them, nothing moves.</p>
+                        <p>The copy of a tab in More carries the same <code>data-pg-anchor</code> as the tab, so it brings the page back the same way.</p>
+                        <p>One more paragraph, so there is scroll to come back from.</p>
+                        <p>And the last one. Now press a tab.</p>
                     </section>
                     <section class="panel" id="t-catalog" data-pg-target="catalog tab" data-pg-target-active="false">
                         <small>Section</small>
@@ -392,6 +421,7 @@
             import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.0/dist/index.js";
             import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
             import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.0.0/dist/index.js";
+            import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.2.1/dist/index.js";
 
             const query = new URLSearchParams(location.search);
             const row = document.getElementById("row");
@@ -403,10 +433,16 @@
                 row.querySelectorAll("[data-pg-fit-more-nav-priority]").forEach((el) => el.removeAttribute("data-pg-fit-more-nav-priority"));
             }
 
-            // The three packages, side by side — none knows the others.
+            // ?when: when a pressed tab brings the page back — on the row, so
+            // its copies in More have it too.
+            const when = query.get("when");
+            row.style.setProperty("--pg-anchor-when", when === "always" || when === "never" ? when : "passed");
+
+            // The four packages, side by side — none knows the others.
             initTargetFunctions();
             initDropdown();
             initFitMoreNav();
+            initAnchor();
 
             // The demo's own: the window's width, and what fits.
             const win = document.getElementById("window");
@@ -442,6 +478,10 @@
             document.getElementById("priority-on").href = link("priority", null);
             document.getElementById("priority-off").href = link("priority", "none");
             document.getElementById(query.get("priority") === "none" ? "priority-off" : "priority-on").setAttribute("aria-current", "true");
+            document.getElementById("when-passed").href = link("when", null);
+            document.getElementById("when-always").href = link("when", "always");
+            document.getElementById("when-never").href = link("when", "never");
+            document.getElementById(`when-${when === "always" || when === "never" ? when : "passed"}`).setAttribute("aria-current", "true");
             document.getElementById("hash").href = `${link("x", null)}#t-team`;
         </script>
     </body>
