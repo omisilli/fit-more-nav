@@ -111,19 +111,48 @@
                 border-color: var(--fg);
             }
 
-            /* The "window": its width comes from the slider below. */
+            /* The "window": as wide as its handle or the slider says — never
+               wider than the page leaves it, so on a phone it fills the screen. */
             .stage {
                 display: grid;
+                grid-template-columns: minmax(0, 1fr);
                 justify-items: center;
             }
             .window {
-                width: var(--window, 1100px);
-                max-width: 100%;
+                position: relative;
+                width: min(var(--window, 1100px), 100%);
                 border-radius: 1rem;
                 background: var(--surface);
                 box-shadow:
                     0 1px 2px rgb(0 0 0 / 0.06),
                     0 20px 50px -20px rgb(0 0 0 / 0.25);
+            }
+            /* The handle on the window's right edge: drag it, or focus it and
+               use the arrow keys (Shift for bigger steps, Home and End). */
+            .handle {
+                position: absolute;
+                top: 50%;
+                right: -0.45rem;
+                translate: 0 -50%;
+                z-index: 6;
+                width: 0.9rem;
+                height: 4.5rem;
+                display: grid;
+                place-items: center;
+                border-radius: 1rem;
+                background: var(--accent);
+                cursor: ew-resize;
+                touch-action: none;
+            }
+            .handle::before {
+                content: "";
+                width: 0.35rem;
+                height: 1.5rem;
+                border-inline: 2px solid rgb(255 255 255 / 0.75);
+            }
+            .handle:focus-visible {
+                outline: 2px solid var(--fg);
+                outline-offset: 2px;
             }
 
             /* The bar holds the row, which takes its whole width. Sticky: far
@@ -274,7 +303,7 @@
             <header>
                 <h1>fit-more-nav</h1>
                 <p>
-                    A row of tabs that always fits. Narrow the window below: the tabs that no longer fit move to
+                    A row of tabs that always fits. Narrow the window below — drag its right edge, or the slider: the tabs that no longer fit move to
                     <b>More</b>, the lowest priority first, and come back as it grows. The open tab never leaves —
                     pick one from More and it comes into the row while another goes. "More" is a
                     <code>dropdown</code>, the tabs are <code>targetFunctions</code>; fit-more-nav only measures
@@ -379,6 +408,8 @@
                         <h2>Contact</h2>
                         <p>Write to us; we answer the same working day.</p>
                     </section>
+
+                    <span class="handle" id="handle" role="slider" tabindex="0" aria-label="Window width" aria-orientation="horizontal" aria-valuemin="320" aria-valuemax="1100" aria-valuenow="1100"></span>
                 </div>
 
                 <div class="ruler">
@@ -418,14 +449,62 @@
 
             // The demo's own: the window's width, and what fits.
             const win = document.getElementById("window");
+            const stage = win.parentElement;
+            const handle = document.getElementById("handle");
             const slider = document.getElementById("width");
             const out = document.getElementById("width-out");
             const status = document.getElementById("status");
+            const MIN = 320;
+            const MAX = 1100;
+
+            // As wide as asked — but no wider than the page's own container.
             const setWidth = (w) => {
-                win.style.setProperty("--window", `${w}px`);
+                const max = Math.min(MAX, stage.clientWidth);
+                const width = Math.round(Math.min(max, Math.max(Math.min(MIN, max), w)));
+                win.style.setProperty("--window", `${width}px`);
+                slider.max = String(max);
+                slider.value = String(width);
+                handle.setAttribute("aria-valuemax", String(max));
+                handle.setAttribute("aria-valuenow", String(width));
+                handle.setAttribute("aria-valuetext", `${width} pixels`);
                 out.firstChild.textContent = String(Math.round(win.getBoundingClientRect().width));
+                return width;
             };
-            slider.addEventListener("input", () => setWidth(slider.value));
+            // What the reader chose: kept when the page itself narrows and
+            // widens again.
+            let wanted = MAX;
+            slider.addEventListener("input", () => (wanted = setWidth(Number(slider.value))));
+
+            // The handle: the window stays centred, so its edge moves half as
+            // far as its width changes — the handle stays under the pointer.
+            let drag = null;
+            handle.addEventListener("pointerdown", (event) => {
+                if (event.button > 0) return;
+                event.preventDefault();
+                handle.setPointerCapture(event.pointerId);
+                const box = win.getBoundingClientRect();
+                drag = { centre: box.left + box.width / 2, grab: event.clientX - box.right };
+                handle.focus({ preventScroll: true });
+            });
+            handle.addEventListener("pointermove", (event) => {
+                if (drag) wanted = setWidth(2 * (event.clientX - drag.grab - drag.centre));
+            });
+            const drop = () => (drag = null);
+            handle.addEventListener("pointerup", drop);
+            handle.addEventListener("pointercancel", drop);
+            handle.addEventListener("lostpointercapture", drop);
+            handle.addEventListener("keydown", (event) => {
+                const step = event.shiftKey ? 100 : 20;
+                const keys = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step };
+                let width;
+                if (event.key in keys) width = wanted + keys[event.key];
+                else if (event.key === "Home") width = MIN;
+                else if (event.key === "End") width = MAX;
+                else return;
+                event.preventDefault();
+                wanted = setWidth(width);
+            });
+            setWidth(wanted);
             const show = () => {
                 const items = row.querySelectorAll("[data-pg-fit-more-nav-item]");
                 const hidden = row.querySelectorAll("[data-pg-fit-more-nav-item][data-pg-fit-more-nav-hidden]").length;
@@ -433,7 +512,7 @@
             };
             new MutationObserver(show).observe(row, { attributes: true, subtree: true, attributeFilter: ["data-pg-fit-more-nav-hidden"] });
             show();
-            addEventListener("resize", () => setWidth(slider.value));
+            addEventListener("resize", () => setWidth(wanted));
 
             // The links keep each other.
             const link = (name, value) => {
