@@ -21,8 +21,10 @@
                 --fg: #18181b;
                 --muted: #6b6b72;
                 --line: #e4e4e0;
-                --accent: #2f5bea;
-                --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+                /* No blue: the page's own ink, like the switches — black by
+                   day, near white by night. */
+                --accent: var(--fg);
+                --accent-soft: color-mix(in srgb, var(--fg) 8%, transparent);
                 --count: #e5484d;
                 color-scheme: light dark;
             }
@@ -33,7 +35,6 @@
                     --fg: #ededef;
                     --muted: #9a9aa3;
                     --line: #2c2c31;
-                    --accent: #7c9cff;
                 }
             }
             * {
@@ -339,16 +340,16 @@
                     var(--rail) 0
                 );
             }
-            /* A stop: a faint ring, the thumb's shape — on the fill, a faint
-               ring of the fill's colour. */
+            /* A stop: a faint ring, the thumb's own size and shape — on the
+               fill, a faint ring of the fill's colour. */
             .dots i {
                 position: absolute;
                 top: 50%;
                 left: calc(11px + var(--at) * (100% - 22px));
                 translate: -50% -50%;
-                width: 16px;
-                height: 16px;
-                border: 3px solid color-mix(in srgb, var(--fg) 22%, var(--surface));
+                width: 22px;
+                height: 22px;
+                border: 5px solid color-mix(in srgb, var(--fg) 18%, var(--surface));
                 border-radius: 50%;
                 background: var(--surface);
             }
