@@ -16,10 +16,10 @@ leaves it. No dependencies.
 > of them — each package is installed on its own.
 
 ```sh
-npm install github:omisilli/dropdown#v1.4.1
-npm install github:omisilli/target-functions#v3.2.0   # for tabs
-npm install github:omisilli/anchor#v3.3.1             # for long tabs
-npm install github:omisilli/fit-more-nav#v1.4.0
+npm install @plusguard/dropdown
+npm install @plusguard/target-functions   # for tabs
+npm install @plusguard/anchor             # for long tabs
+npm install @plusguard/fit-more-nav
 ```
 
 ```ts
@@ -40,15 +40,15 @@ Each returns its own cleanup.
 ### Without a build step
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.1/index.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@plusguard/dropdown@1.4.2/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@plusguard/target-functions@3.2.1/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@plusguard/anchor@3.3.2/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@plusguard/fit-more-nav@1.4.1/index.css" />
 <script type="module">
-    import { initDropdown } from "https://cdn.jsdelivr.net/gh/omisilli/dropdown@v1.4.1/dist/index.js";
-    import { initTargetFunctions } from "https://cdn.jsdelivr.net/gh/omisilli/target-functions@v3.2.0/dist/index.js";
-    import { initAnchor } from "https://cdn.jsdelivr.net/gh/omisilli/anchor@v3.3.1/dist/index.js";
-    import { initFitMoreNav } from "https://cdn.jsdelivr.net/gh/omisilli/fit-more-nav@v1.4.0/dist/index.js";
+    import { initDropdown } from "https://cdn.jsdelivr.net/npm/@plusguard/dropdown@1.4.2/dist/index.js";
+    import { initTargetFunctions } from "https://cdn.jsdelivr.net/npm/@plusguard/target-functions@3.2.1/dist/index.js";
+    import { initAnchor } from "https://cdn.jsdelivr.net/npm/@plusguard/anchor@3.3.2/dist/index.js";
+    import { initFitMoreNav } from "https://cdn.jsdelivr.net/npm/@plusguard/fit-more-nav@1.4.1/dist/index.js";
 
     initDropdown();
     initTargetFunctions();
